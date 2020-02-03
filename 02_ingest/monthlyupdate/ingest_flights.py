@@ -122,23 +122,38 @@ def upload(csvfile, bucketname, blobname):
    logging.info('Uploaded {} ...'.format(gcslocation))
    return gcslocation
 
+def checkifnew(year, month, bucketname):
+   '''
+     Finds which months are on GCS, and returns False if file already there else False
+   '''
+   client = storage.Client()
+   bucket = client.get_bucket(bucketname)
+   blobs = list(bucket.list_blobs(prefix='flights/raw/'))
+   files = [os.path.basename(blob.name) for blob in blobs if 'csv' in blob.name]  # csv files only
+   csvfilename="{}{}.csv".format(year,month)
+   if csvfilename in files: 
+       logging.info('csvfilename {} ... already exists.'.format(csvfilename))
+       return False
+   return True
+
 def ingest(year, month, bucket):
    '''
    ingest flights data from BTS website to Google Cloud Storage
    return cloud-storage-blob-name on success.
    raises DataUnavailable if this data is not on BTS website
    '''
-   tempdir = tempfile.mkdtemp(prefix='ingest_flights')
-   try:
-      zipfile = download(year, month, tempdir)
-      bts_csv = zip_to_csv(zipfile, tempdir)
-      csvfile = remove_quotes_comma(bts_csv, year, month)
-      verify_ingest(csvfile)
-      gcsloc = 'flights/raw/{}'.format(os.path.basename(csvfile))
-      return upload(csvfile, bucket, gcsloc)
-   finally:
-      logging.debug('Cleaning up by removing {}'.format(tempdir))
-      shutil.rmtree(tempdir)
+   if checkifnew(year, month, bucket):
+       tempdir = tempfile.mkdtemp(prefix='ingest_flights')
+       try:
+          zipfile = download(year, month, tempdir)
+          bts_csv = zip_to_csv(zipfile, tempdir)
+          csvfile = remove_quotes_comma(bts_csv, year, month)
+          verify_ingest(csvfile)
+          gcsloc = 'flights/raw/{}'.format(os.path.basename(csvfile))
+          return upload(csvfile, bucket, gcsloc)
+       finally:
+          logging.debug('Cleaning up by removing {}'.format(tempdir))
+          shutil.rmtree(tempdir)
 
 def next_month(bucketname):
    '''

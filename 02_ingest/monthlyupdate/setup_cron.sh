@@ -13,18 +13,20 @@ URLPATH=$3
 TOKEN=$4
 
 URL="https://${REGION}-${PROJECT}.cloudfunctions.net/${URLPATH}"
-echo {\"bucket\":\"${BUCKET}\", \"token\":\"${TOKEN}\"} > /tmp/message
-
+echo {\"bucket\":\"${BUCKET}\", \"token\":\"${TOKEN}\"} > /tmp/message_monthlyupdate
 
 gcloud pubsub topics create cron-topic
 gcloud pubsub subscriptions create cron-sub --topic cron-topic
+#
+#       --schedule="8 of month 10:00" \
+#
 
 gcloud beta scheduler jobs create http monthlyupdate \
-       --schedule="8 of month 10:00" \
+       --schedule="every 1 mins" \
        --uri=$URL \
        --max-backoff=7d \
        --max-retry-attempts=5 \
        --max-retry-duration=3h \
        --min-backoff=1h \
        --time-zone="US/Eastern" \
-       --message-body-from-file=/tmp/message
+       --message-body-from-file=/tmp/message_monthlyupdate
