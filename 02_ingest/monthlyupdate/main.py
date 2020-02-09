@@ -27,8 +27,7 @@ def ingest_flights(request):
       # if escape(json['token']) != 'DI8TWPzTedNF0b3B8meFPxXSWw6m3bKG':
       if escape(json['token']) != '0Gdv7YywE0NEUVdtmNHv4a7Ffk6MpEf1':
          logging.info('Ignoring request without valid token')
-         return "200:OK"
-
+         return
       year = escape(json['year']) if 'year' in json else None
       month = escape(json['month']) if 'month' in json else None
       bucket = escape(json['bucket'])  # required
@@ -38,7 +37,7 @@ def ingest_flights(request):
       logging.debug('Ingesting year={} month={}'.format(year, month))
       gcsfile = ingest(year, month, bucket)
       logging.info('Success ... ingested to {}'.format(gcsfile))
-      return "200:OK"
+      return
    except DataUnavailable as e:
       logging.info('Try again later: {}'.format(e.message))
-      return "200:OK"
+      return
