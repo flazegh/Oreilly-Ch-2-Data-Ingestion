@@ -67,7 +67,7 @@ def tz_correct(line, airport_timezones):
          fields[f], arrtz = as_utc(fields[0], fields[f], arr_timezone)
       
       for f in [17, 18, 20, 21]:
-         fields[f] = add_24h_if_before(fields[f], fields[14])
+         fields[f] = add_24h_if_before(fields[f], fields[14]) # in comparision to deptime
 
       fields.extend(airport_timezones[dep_airport_id])
       fields[-1] = str(deptz)
