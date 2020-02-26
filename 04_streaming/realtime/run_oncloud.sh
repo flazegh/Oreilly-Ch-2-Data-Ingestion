@@ -18,7 +18,7 @@ mvn compile exec:java \
       --stagingLocation=gs://$BUCKET/staging/ \
       --gcpTempLocation=gs://$BUCKET/staging/tmp \
       --averagingInterval=60 \
-      --speedupFactor=30 \
+      --speedupFactor=480 \
       --runner=DataflowRunner"
 
 cd ..
