@@ -1,0 +1,18 @@
+DROP TABLE
+  `fiery-bit-266210`.flights.trainday;
+
+CREATE TABLE
+  `fiery-bit-266210`.flights.trainday AS
+SELECT
+  FL_DATE,
+IF
+  (MOD(ABS(FARM_FINGERPRINT(CAST(FL_DATE AS STRING))), 100) < 70,
+    'True',
+    'False') AS is_train_day
+FROM (
+  SELECT
+    DISTINCT(FL_DATE) AS FL_DATE
+  FROM
+    `fiery-bit-266210.flights.tzcorr` )
+ORDER BY
+  FL_DATE
